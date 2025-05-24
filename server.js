@@ -1,9 +1,18 @@
 const express = require('express');
-   const fs = require('fs').promises;
-   const app = express();
+const path = require('path');
+const fs = require('fs').promises;
+const app = express();
 
-   app.use(express.json({ limit: '50mb' }));
-   app.use(express.static('public'));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route pour servir index.html à la racine
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ... le reste de votre code ...
+
 
    let trafficData;
 
