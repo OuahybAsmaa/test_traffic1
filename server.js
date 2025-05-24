@@ -1,7 +1,9 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs').promises;
 const app = express();
+
+// Importer les données directement
+const trafficData = require('./traffic-data.json'); // Assurez-vous que traffic-data.json est dans le même répertoire que server.js
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -11,18 +13,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-let trafficData;
-
-async function loadTrafficData() {
-    try {
-        const rawData = await fs.readFile('traffic-data.json', 'utf8');
-        trafficData = JSON.parse(rawData);
-        console.log('Données chargées avec succès');
-    } catch (error) {
-        console.error('Erreur chargement traffic-data.json:', error);
-        trafficData = { locations: {}, routes: [] };
-    }
-}
+// Supprimez la fonction loadTrafficData, car les données sont maintenant importées directement
+// let trafficData; // Plus besoin de cette variable globale non initialisée
 
 function calculateTrafficStatus(segment) {
     const capacity = segment.capacity_per_lane * segment.lanes;
@@ -105,13 +97,6 @@ function updateTrafficData() {
         const totalAvgOccupancy = route.routes.reduce((sum, r) => sum + parseFloat(r.avg_occupancy_rate), 0) / route.routes.length;
         route.avg_occupancy = totalAvgOccupancy.toFixed(2);
     });
-
-    // Remove the file write operation since Vercel doesn't support it
-    // try {
-    //     fs.writeFile('traffic-data.json', JSON.stringify(trafficData, null, 2), 'utf8');
-    // } catch (error) {
-    //     console.error('Erreur écriture fichier JSON:', error);
-    // }
 }
 
 app.get('/traffic-data', async (req, res) => {
@@ -125,8 +110,6 @@ app.get('/traffic-data', async (req, res) => {
 app.post('/save-traffic-data', async (req, res) => {
     try {
         trafficData = req.body;
-        // Remove file write operation
-        // await fs.writeFile('traffic-data.json', JSON.stringify(trafficData, null, 2), 'utf8');
         res.json({ message: 'Données sauvegardées avec succès (in memory)' });
     } catch (error) {
         console.error('Erreur sauvegarde:', error);
@@ -134,14 +117,7 @@ app.post('/save-traffic-data', async (req, res) => {
     }
 });
 
-async function startServer() {
-    await loadTrafficData();
-    setInterval(updateTrafficData, 10000);
-}
-
-startServer().catch(error => {
-    console.error('Erreur démarrage serveur:', error);
-});
+setInterval(updateTrafficData, 10000);
 
 // Export pour Vercel
 module.exports = app;
