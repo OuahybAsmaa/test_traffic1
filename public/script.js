@@ -313,7 +313,7 @@ async function generateRoute(newStartCoords = null) {
         });
     });
 
-    map.removeControl(currentRoutingControl);
+    //map.removeControl(currentRoutingControl);
 }
 
 function displayRouteOnMap(routeIndex) {
