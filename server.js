@@ -2,8 +2,8 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-// Importer les données initiales directement
-const trafficData = require('./traffic-data.json'); // Assurez-vous que traffic-data.json est dans le répertoire racine
+// Importer les données directement
+const trafficData = require('./traffic-data.json'); // Assurez-vous que traffic-data.json est dans le même répertoire que server.js
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -144,7 +144,7 @@ app.get('/traffic-data', async (req, res) => {
     }
 });
 
-// API pour sauvegarder les nouvelles données (en mémoire)
+// API pour sauvegarder les nouvelles données (in-memory)
 app.post('/save-traffic-data', async (req, res) => {
     try {
         trafficData = req.body;
@@ -155,7 +155,7 @@ app.post('/save-traffic-data', async (req, res) => {
     }
 });
 
-// Lancer la mise à jour des données toutes les 10 secondes
+// Mettre à jour les données toutes les 10 secondes
 setInterval(updateTrafficData, 10000);
 
 // Export pour Vercel
